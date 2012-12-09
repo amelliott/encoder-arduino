@@ -4,7 +4,7 @@
 int EncoderManager::mNumEncoders = 0;
 Encoder EncoderManager::mEncoders[NUM_ENCODERS];
 
-void EncoderManager::registerEncoder(int pinA, int pinB)
+void EncoderManager::registerEncoder(int pinA, int pinB, void (*onLeft)(), void (*onRight)())
 {
     pinMode(pinA, INPUT);
     pinMode(pinB, INPUT);
@@ -13,8 +13,11 @@ void EncoderManager::registerEncoder(int pinA, int pinB)
     attachInterrupt(pinA, onInterrupt, CHANGE);
     attachInterrupt(pinB, onInterrupt, CHANGE);
     
-    mEncoders[mNumEncoders].pinA = pinA;
-    mEncoders[mNumEncoders].pinB = pinB;
+    Encoder * newEncoder = &mEncoders[mNumEncoders];
+    newEncoder->pinA = pinA;
+    newEncoder->pinB = pinB;
+    newEncoder->onLeft = onLeft;
+    newEncoder->onRight = onRight;
     ++mNumEncoders;
 }
 
@@ -31,7 +34,7 @@ void EncoderManager::onInterrupt()
         Encoder * encoder = &mEncoders[i];
         int val1 = digitalRead(encoder->pinA);
         int val2 = digitalRead(encoder->pinB);
-#ifdef DEBUG
+#ifdef ENC_DEBUG
         Serial.print("Pin1 (");
         Serial.print(encoder->pinA);
         Serial.print(encoder->oldPos);
@@ -63,10 +66,10 @@ void EncoderManager::onInterrupt()
         
         if (pos == 0){ // only assume a complete step on stationary position
             if (encoder->turnCount > 0) {
-                Serial.print("Left");
+                encoder->onLeft();
             }
             else if (encoder->turnCount < 0) {
-                Serial.print("Right");
+                encoder->onRight();
             }
             encoder->turnCount = 0;
         }

@@ -6,11 +6,13 @@ struct Encoder {
     volatile int oldTurn;
     volatile int turnCount;
     volatile int oldPos;
+    void (*onLeft)();
+    void (*onRight)();
 };
 
 class EncoderManager {
     public:
-        static void registerEncoder(int pinA, int pinB);
+        static void registerEncoder(int pinA, int pinB, void(*)(), void(*)());
         static void registerEncoder(const Encoder&);
         static void deregisterEncoder(volatile Encoder *);
         static void onInterrupt();
