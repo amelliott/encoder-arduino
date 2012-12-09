@@ -1,14 +1,10 @@
 #include "NewEncoder.h"
 #include "Arduino.h"
 
-int Encoder::mNumEncoders = 0;
-int Encoder::mPinA[NUM_ENCODERS];
-int Encoder::mPinB[NUM_ENCODERS];
-volatile int Encoder::mPrevPinAVal[NUM_ENCODERS];
-volatile int Encoder::mPrevPinBVal[NUM_ENCODERS];
+int EncoderManager::mNumEncoders = 0;
+Encoder EncoderManager::mEncoders[NUM_ENCODERS];
 
-
-void Encoder::registerEncoder(int pinA, int pinB)
+void EncoderManager::registerEncoder(int pinA, int pinB)
 {
     pinMode(pinA, INPUT);
     pinMode(pinB, INPUT);
@@ -16,23 +12,66 @@ void Encoder::registerEncoder(int pinA, int pinB)
     digitalWrite(pinB, HIGH);
     attachInterrupt(pinA, onInterrupt, CHANGE);
     attachInterrupt(pinB, onInterrupt, CHANGE);
-
-    mPinA[mNumEncoders] = pinA;
-    mPinB[mNumEncoders] = pinB;
-    mPrevPinAVal[mNumEncoders] = 0;
-    mPrevPinBVal[mNumEncoders] = 0;
+    
+    mEncoders[mNumEncoders].pinA = pinA;
+    mEncoders[mNumEncoders].pinB = pinB;
     ++mNumEncoders;
 }
 
-void Encoder::deregisterEncoder(volatile Encoder* encoder)
+void EncoderManager::deregisterEncoder(volatile Encoder* encoder)
 {
 }
 
-void Encoder::onInterrupt()
+// pos, turn, oldVal
+void EncoderManager::onInterrupt()
 {
-    Serial.println("onInterrupt");
+    //Serial.println("onInterrupt");
     for (int i = 0; i < mNumEncoders; ++i)
     {
-
+        Encoder * encoder = &mEncoders[i];
+        int val1 = digitalRead(encoder->pinA);
+        int val2 = digitalRead(encoder->pinB);
+#ifdef DEBUG
+        Serial.print("Pin1 (");
+        Serial.print(encoder->pinA);
+        Serial.print(encoder->oldPos);
+        Serial.print("): ");
+        Serial.println(val1);
+        Serial.print("Pin2: (");
+        Serial.print(encoder->pinB);
+        Serial.print("): ");
+        Serial.println(val2);
+#endif
+        int pos;
+        // for each pair there's a position out of four
+        if (val1 == 1 && val2 == 1) // stationary position
+            pos = 0;
+        else if (val1 == 0 && val2 == 1)
+            pos = 1;
+        else if (val1 == 0 && val2 == 0)
+            pos = 2;
+        else if (val1 == 1 && val2 == 0)
+            pos = 3;
+        
+        int turn = pos - encoder->oldPos;
+        
+        if (abs(turn) != 2)  // impossible to understand where it's turning otherwise.
+            if (turn == -1 || turn == 3)
+                ++encoder->turnCount;
+            else if (turn == 1 || turn == -3)
+                --encoder->turnCount;
+        
+        if (pos == 0){ // only assume a complete step on stationary position
+            if (encoder->turnCount > 0) {
+                Serial.print("Left");
+            }
+            else if (encoder->turnCount < 0) {
+                Serial.print("Right");
+            }
+            encoder->turnCount = 0;
+        }
+        
+        encoder->oldPos  = pos;
+        encoder->oldTurn = turn;
     }
 }
