@@ -13,8 +13,6 @@ struct Encoder {
 class EncoderManager {
     public:
         static void registerEncoder(int pinA, int pinB, void(*)(), void(*)());
-        static void registerEncoder(const Encoder&);
-        static void deregisterEncoder(volatile Encoder *);
         static void onInterrupt();
     private:
         static Encoder mEncoders[NUM_ENCODERS];

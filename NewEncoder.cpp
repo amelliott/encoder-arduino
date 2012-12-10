@@ -21,10 +21,6 @@ void EncoderManager::registerEncoder(int pinA, int pinB, void (*onLeft)(), void 
     ++mNumEncoders;
 }
 
-void EncoderManager::deregisterEncoder(volatile Encoder* encoder)
-{
-}
-
 // pos, turn, oldVal
 void EncoderManager::onInterrupt()
 {
