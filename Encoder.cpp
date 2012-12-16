@@ -1,4 +1,4 @@
-#include "NewEncoder.h"
+#include "Encoder.h"
 #include "Arduino.h"
 
 int EncoderManager::mNumEncoders = 0;
