@@ -12,14 +12,13 @@ struct Encoder {
 
 class EncoderManager {
     public:
+        // TODO: Allow NULL for onLeft and onRight
         static void registerEncoder(int pinA, int pinB, void(*)(), void(*)());
         static void onInterrupt();
     private:
         static Encoder mEncoders[NUM_ENCODERS];
         static int mPinA[NUM_ENCODERS];
         static int mPinB[NUM_ENCODERS];
-        static volatile int mPrevPinAVal[NUM_ENCODERS];
-        static volatile int mPrevPinBVal[NUM_ENCODERS];
         static int mNumEncoders;
 
 };

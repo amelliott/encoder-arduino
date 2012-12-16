@@ -4,6 +4,7 @@
 int EncoderManager::mNumEncoders = 0;
 Encoder EncoderManager::mEncoders[NUM_ENCODERS];
 
+// TODO: When onLeft or onRight NULL, skip registration
 void EncoderManager::registerEncoder(int pinA, int pinB, void (*onLeft)(), void (*onRight)())
 {
     pinMode(pinA, INPUT);
