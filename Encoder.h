@@ -17,8 +17,6 @@ class EncoderManager {
         static void onInterrupt();
     private:
         static Encoder mEncoders[NUM_ENCODERS];
-        static int mPinA[NUM_ENCODERS];
-        static int mPinB[NUM_ENCODERS];
         static int mNumEncoders;
 
 };
