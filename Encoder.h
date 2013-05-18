@@ -13,7 +13,7 @@ struct Encoder {
 class EncoderManager {
     public:
         // TODO: Allow NULL for onLeft and onRight
-        static void registerEncoder(int pinA, int pinB, void(*)(), void(*)());
+        static Encoder * registerEncoder(int pinA, int pinB, void(*)() = 0, void(*)() = 0);
         static void onInterrupt();
     private:
         static Encoder mEncoders[NUM_ENCODERS];

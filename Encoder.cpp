@@ -5,7 +5,7 @@ int EncoderManager::mNumEncoders = 0;
 Encoder EncoderManager::mEncoders[NUM_ENCODERS];
 
 // TODO: When onLeft or onRight NULL, skip registration
-void EncoderManager::registerEncoder(int pinA, int pinB, void (*onLeft)(), void (*onRight)())
+Encoder * EncoderManager::registerEncoder(int pinA, int pinB, void(*onLeft)(), void (*onRight)())
 {
     pinMode(pinA, INPUT);
     pinMode(pinB, INPUT);
@@ -20,6 +20,7 @@ void EncoderManager::registerEncoder(int pinA, int pinB, void (*onLeft)(), void 
     newEncoder->onLeft = onLeft;
     newEncoder->onRight = onRight;
     ++mNumEncoders;
+    return newEncoder;
 }
 
 // pos, turn, oldVal
@@ -63,10 +64,12 @@ void EncoderManager::onInterrupt()
         
         if (pos == 0){ // only assume a complete step on stationary position
             if (encoder->turnCount > 0) {
-                encoder->onLeft();
+                if (encoder->onLeft != NULL)
+                    encoder->onLeft();
             }
             else if (encoder->turnCount < 0) {
-                encoder->onRight();
+                if (encoder->onRight != NULL)
+                    encoder->onRight();
             }
             encoder->turnCount = 0;
         }
